@@ -31,7 +31,7 @@ def pollAddresses(host):
         # Send notification if changed
 
 def rpcTest(host):
-       
+
     #block = host.call('getblock', hash)
     #coin = block['tx'][0]
     #test = host.call('listreceivedbyaddress', 0, True)
@@ -53,19 +53,19 @@ def getRpcHost(rpcPort, rpcUser, rpcPassword):
     # Using the class defined in the dash_rpc_class.py
     host = RPCHost(serverURL)
 
-    return host    
+    return host
 
 def main():
-    
-    host = getRpcHost(RPCPORT, RPCUSER, RPCPASS)
-    
-    if (host.isResponding()):
-        #print(host.call('getinfo'))
-        rpcTest(host)
 
-        pollAddresses(host)
-    else:
-        print('Host not responding')
+    #host = getRpcHost(RPCPORT, RPCUSER, RPCPASS)
+
+    #if (host.isResponding()):
+    #    #print(host.call('getinfo'))
+    #    rpcTest(host)
+
+    #    pollAddresses(host)
+    #else:
+    #    print('Host not responding')
 
 if __name__ == '__main__':
     main()
