@@ -1,5 +1,6 @@
 from coin_rpc_class import RPCHost
 from pprint import pprint
+import requests
 
 #from blockcypher import get_address_details
 #from blockcypher import get_address_full
@@ -10,25 +11,46 @@ from blockcypher import get_address_overview
 RPCPORT = 19998
 RPCUSER = 'user'
 RPCPASS = 'pass'
+COIN = 100000000
 
 addr = ['yY6AmGopsZS31wy1JLHR9P6AC6owFaXwuh']
 
-def pollAddresses(host):
+def pollAddresses(): #host):
     for a in addr:
         print('Address: {}'.format(a))
 
-        # Check balance
-        #info = get_address_overview('Xoyn4Xxugx5K6HAog7vzxb6Hf3SW586Zfc', 'dash')
-        #print(info['final_balance'])
-
         try:
-            info = host.call('getaddressbalance', a)
+            #info = host.call('getaddressbalance', a)
+            balance = getBalanceInsight(a)
+            #balance = getBalanceBlockcypher(a)
+
+            print('Balance: {} DASH'.format(float(balance)/COIN))
         except Exception as e:
             print(e)
-                
+
         # Compare with previous (if found)
 
         # Send notification if changed
+
+def getBalanceInsight(address):
+    apiUrlBase = "https://testnet-insight.dashevo.org/insight-api-dash/addr/"
+    apiUrlSuffix = "/balance"
+    url = '{}{}{}'.format(apiUrlBase, address, apiUrlSuffix)
+
+    response = requests.get(url)
+
+    if response.status_code == requests.codes.ok:
+        print('{} {}'.format(response.status_code, response.text)) #, contents.json()))
+        return response.text
+    else:
+        response.raise_for_status()
+        #throw 'Invalid response: {}'.format(response.status_code)
+
+def getBalanceBlockcypher(address):
+
+    # Only works for mainnet addresses
+    info = get_address_overview(address, 'dash')
+    print('Balance: {}'.format(info['final_balance']))
 
 def rpcTest(host):
 
@@ -56,6 +78,8 @@ def getRpcHost(rpcPort, rpcUser, rpcPassword):
     return host
 
 def main():
+
+    pollAddresses()
 
     #host = getRpcHost(RPCPORT, RPCUSER, RPCPASS)
 
