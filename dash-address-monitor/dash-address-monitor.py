@@ -1,4 +1,6 @@
 from coin_rpc_class import RPCHost
+from keybase import Keybase
+
 from pprint import pprint
 import requests
 
@@ -16,21 +18,31 @@ COIN = 100000000
 addr = ['yY6AmGopsZS31wy1JLHR9P6AC6owFaXwuh']
 
 def pollAddresses(): #host):
+    balance = None
+    prevBalance = 1000000000000.0
+
     for a in addr:
         print('Address: {}'.format(a))
 
         try:
             #info = host.call('getaddressbalance', a)
-            balance = getBalanceInsight(a)
+            balance = float(getBalanceInsight(a))
             #balance = getBalanceBlockcypher(a)
 
             print('Balance: {} DASH'.format(float(balance)/COIN))
         except Exception as e:
-            print(e)
+            print('Exception getting balance: {}'.format(e))
+            return
 
         # Compare with previous (if found)
+        if (balance != prevBalance):
+            # Store new Balance
+            balanceChange = balance - prevBalance
 
-        # Send notification if changed
+            # Send notification
+            kb = Keybase()
+            notifyMessage = 'Balance change:\n\t`{}`\n\t\tPrevious Balance: {}DASH\n\t\tNew Balance: {} DASH\n\t\tChange of: {} DASH'.format(a, float(prevBalance)/COIN, float(balance)/COIN, balanceChange/COIN)
+            kb.sendTeamMessage('phez', 'notifications', notifyMessage)
 
 def getBalanceInsight(address):
     apiUrlBase = "https://testnet-insight.dashevo.org/insight-api-dash/addr/"
