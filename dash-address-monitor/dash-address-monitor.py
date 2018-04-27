@@ -32,9 +32,6 @@ def pollAddresses(host):
 
 def rpcTest(host):
        
-    #hash = host.call('getblockhash', 7777)
-    #pprint (hash)
-    
     #block = host.call('getblock', hash)
     #coin = block['tx'][0]
     #test = host.call('listreceivedbyaddress', 0, True)
