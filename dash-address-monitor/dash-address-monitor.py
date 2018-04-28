@@ -2,7 +2,7 @@ from coin_rpc_class import RPCHost
 from keybase import Keybase
 
 from pprint import pprint
-import time, requests
+import time, requests, shelve
 
 #from blockcypher import get_address_details
 #from blockcypher import get_address_full
@@ -15,11 +15,14 @@ RPCUSER = 'user'
 RPCPASS = 'pass'
 COIN = 100000000
 
-addr = ['yY6AmGopsZS31wy1JLHR9P6AC6owFaXwuh']
+addr = ['ye5F5rfx44YqvqCpVvi1SfFS4dvqaqyuDr',
+        'ygYFnLHoVRyhRoxd6fXQ9nmEafX4eLoWkB',
+        'ydbfUYWfLm6xg7Y5aBLjy38DvksrvNcHEc']
 
 def pollAddresses(): #host):
     balance = None
-    prevBalance = 1000000000000.0
+    prevBalance = 100000000000.0
+    db = 'balances.dat'
 
     for a in addr:
         print('Address: {}'.format(a))
@@ -31,18 +34,23 @@ def pollAddresses(): #host):
 
             print('Balance: {} DASH'.format(float(balance)/COIN))
         except Exception as e:
-            print('Exception getting balance: {}'.format(e))
+            print('Exception getting balance: {}. Exiting'.format(e))
             return
 
         # Compare with previous (if found)
+        prevBalance = getBalance(db, a)
         if (balance != prevBalance):
-            # Store new Balance
             balanceChange = balance - prevBalance
+
+            # Store new Balance
+            storeBalance(db, a, balance)
 
             # Send notification
             kb = Keybase()
             notifyMessage = 'Balance change:\n\t`{}`\n\t\tPrevious Balance: {}DASH\n\t\tNew Balance: {} DASH\n\t\tChange of: {} DASH'.format(a, float(prevBalance)/COIN, float(balance)/COIN, balanceChange/COIN)
             kb.sendTeamMessage('phez', 'notifications', notifyMessage)
+        else:
+            print('No balance change for `{}`'.format(a))
 
 def getBalanceInsight(address):
     apiUrlBase = "https://testnet-insight.dashevo.org/insight-api-dash/addr/"
@@ -95,6 +103,26 @@ def getBalanceBlockcypher(address):
     # Only works for mainnet addresses
     info = get_address_overview(address, 'dash')
     print('Balance: {}'.format(info['final_balance']))
+
+def storeBalance(db, address, balance):
+    d = shelve.open(db)
+    d[address] = balance
+    d.close()
+
+    return
+
+def getBalance(db, address):
+
+    d = shelve.open(db)
+    if address in d:
+        balance = d[address]
+    else:
+        print('Address not found in database. Using 0.0')
+        balance = 0.0
+
+    d.close()
+
+    return balance
 
 def rpcTest(host):
 
