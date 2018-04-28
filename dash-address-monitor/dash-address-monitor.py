@@ -4,18 +4,15 @@ from keybase import Keybase
 from pprint import pprint
 import time, requests, shelve
 
-#from blockcypher import get_address_details
-#from blockcypher import get_address_full
 from blockcypher import get_address_overview
-
-#https://insight.dashevo.org/insight-api-dash/addr/Xoyn4Xxugx5K6HAog7vzxb6Hf3SW586Zfc/balance
 
 RPCPORT = 19998
 RPCUSER = 'user'
 RPCPASS = 'pass'
 COIN = 100000000
 
-addr = ['ye5F5rfx44YqvqCpVvi1SfFS4dvqaqyuDr',
+addr = ['yY6AmGopsZS31wy1JLHR9P6AC6owFaXwuh',
+        'ye5F5rfx44YqvqCpVvi1SfFS4dvqaqyuDr',
         'ygYFnLHoVRyhRoxd6fXQ9nmEafX4eLoWkB',
         'ydbfUYWfLm6xg7Y5aBLjy38DvksrvNcHEc']
 
@@ -54,6 +51,7 @@ def pollAddresses(): #host):
 
 def getBalanceInsight(address):
     apiUrlBase = "https://testnet-insight.dashevo.org/insight-api-dash/addr/"
+    #apiUrlBase = "https://insight.dashevo.org/insight-api-dash/addr/"
     apiUrlSuffix = "/balance"
     url = '{}{}{}'.format(apiUrlBase, address, apiUrlSuffix)
 
@@ -82,20 +80,13 @@ def getBalanceInsight(address):
             break
 
     if not response.status_code in (200, 500):
+        #response.raise_for_status()
         raise Exception('Insight-API connection failure: ' + str(response.status_code) + ' ' + response.reason)
 
     if (response.text.isdigit() != True):
         raise Exception('Insight-API: Non-numeric balance returned')
 
     print('Completed with {} tries remaining'.format(tries))
-
-    #if response.status_code == requests.codes.ok:
-    #    print('{} {}'.format(response.status_code, response.text)) #, contents.json()))
-    #    return response.text
-    #else:
-    #    response.raise_for_status()
-    #    #throw 'Invalid response: {}'.format(response.status_code)
-
     return response.text
 
 def getBalanceBlockcypher(address):
@@ -125,11 +116,6 @@ def getBalance(db, address):
     return balance
 
 def rpcTest(host):
-
-    #block = host.call('getblock', hash)
-    #coin = block['tx'][0]
-    #test = host.call('listreceivedbyaddress', 0, True)
-    #pprint(test)
 
     getinfo = host.call('getinfo')
     print('Current block height: {}'.format(getinfo['blocks']))
