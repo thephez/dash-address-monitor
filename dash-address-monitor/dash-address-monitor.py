@@ -12,11 +12,9 @@ RPCPASS = 'pass'
 COIN = 100000000
 
 addr = ['yY6AmGopsZS31wy1JLHR9P6AC6owFaXwuh',
-        'ye5F5rfx44YqvqCpVvi1SfFS4dvqaqyuDr',
-        'ygYFnLHoVRyhRoxd6fXQ9nmEafX4eLoWkB',
-        'ydbfUYWfLm6xg7Y5aBLjy38DvksrvNcHEc']
+        '']
 
-def pollAddresses(): #host):
+def pollAddresses(host): #host):
     balance = None
     prevBalance = 100000000000.0
     db = 'balances.dat'
@@ -25,14 +23,15 @@ def pollAddresses(): #host):
         print('Address: {}'.format(a))
 
         try:
-            #info = host.call('getaddressbalance', a)
-            balance = float(getBalanceInsight(a))
+            balance = host.call('getaddressbalance', a)['balance']
+            print(balance)
+            #balance = float(getBalanceInsight(a))
             #balance = getBalanceBlockcypher(a)
 
             print('Balance: {} DASH'.format(float(balance)/COIN))
         except Exception as e:
             print('Exception getting balance: {}. Exiting'.format(e))
-            return
+            continue
 
         # Compare with previous (if found)
         prevBalance = getBalance(db, a)
@@ -137,17 +136,17 @@ def getRpcHost(rpcPort, rpcUser, rpcPassword):
 
 def main():
 
-    pollAddresses()
+    #pollAddresses()
 
-    #host = getRpcHost(RPCPORT, RPCUSER, RPCPASS)
+    host = getRpcHost(RPCPORT, RPCUSER, RPCPASS)
 
-    #if (host.isResponding()):
-    #    #print(host.call('getinfo'))
-    #    rpcTest(host)
+    if (host.isResponding()):
+        #print(host.call('getinfo'))
+        rpcTest(host)
 
-    #    pollAddresses(host)
-    #else:
-    #    print('Host not responding')
+        pollAddresses(host)
+    else:
+        print('Host not responding')
 
 if __name__ == '__main__':
     main()

@@ -40,7 +40,7 @@ class Keybase(object):
         #print(apiMsg)
 
         jsonData = json.dumps(apiMsg)
-
+        subprocess.call('keybase status', shell=True)
         # Run command
         osCommand = "{} -m '{}'".format(self.CHATCMD, jsonData)
 
@@ -50,7 +50,7 @@ class Keybase(object):
             if exitcode == 0:
                 msg = 'Command completed successfully (return code = {}) - "{}"'.format(osCommand, exitcode)
             else:
-                msg = 'Command failed (return code = {}) - "{}".'.format(osCommand, exitcode)
+                msg = 'Command failed (return code = {}) - "{}".'.format(exitcode, osCommand)
         except Exception as e:
             print(e)
             raise

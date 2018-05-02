@@ -40,5 +40,6 @@ class RPCHost(object):
         try:
             self.call('getinfo')
             return True
-        except:
+        except Exception as e:
+            print(e)
             return False
