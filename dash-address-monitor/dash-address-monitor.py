@@ -43,8 +43,8 @@ def pollAddresses(host): #host):
 
             # Send notification
             kb = Keybase()
-            notifyMessage = 'Balance change:\n\t`{}`\n\t\tPrevious Balance: {}DASH\n\t\tNew Balance: {} DASH\n\t\tChange of: {} DASH'.format(a, float(prevBalance)/COIN, float(balance)/COIN, balanceChange/COIN)
-            kb.sendTeamMessage('phez', 'notifications', notifyMessage)
+            notifyMessage = 'Balance change:\n\t\`{}\`\n    Previous Balance: {}DASH\n    New Balance: {} DASH\n    Change of: {} DASH'.format(a, float(prevBalance)/COIN, float(balance)/COIN, balanceChange/COIN)
+            kb.sendTeamMessage('phez', 'dev-null', notifyMessage, 'kbscreen')
         else:
             print('No balance change for `{}`'.format(a))
 

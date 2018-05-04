@@ -23,26 +23,30 @@ class Keybase(object):
 
     def __init__(self):
         self.CHATCMD = 'keybase chat api'
+        self.ENTERKEY = '^M'
 
-    def sendTeamMessage(self, teamName, teamChannel, message):
-        msg = None
+    def sendTeamMessage(self, teamName, teamChannel, message, screenName):
+        #msg = None
 
-        apiMsg = {}
-        apiMsg['method'] = 'send'
-        apiMsg['params'] = {}
-        apiMsg['params']['options'] = {}
-        apiMsg['params']['options']['channel'] = {}
-        apiMsg['params']['options']['channel']['name'] = teamName
-        apiMsg['params']['options']['channel']['members_type'] = 'team'
-        apiMsg['params']['options']['channel']['topic_name'] = teamChannel
-        apiMsg['params']['options']['message'] = {}
-        apiMsg['params']['options']['message']['body'] = message
+        #apiMsg = {}
+        #apiMsg['method'] = 'send'
+        #apiMsg['params'] = {}
+        #apiMsg['params']['options'] = {}
+        #apiMsg['params']['options']['channel'] = {}
+        #apiMsg['params']['options']['channel']['name'] = teamName
+        #apiMsg['params']['options']['channel']['members_type'] = 'team'
+        #apiMsg['params']['options']['channel']['topic_name'] = teamChannel
+        #apiMsg['params']['options']['message'] = {}
+        #apiMsg['params']['options']['message']['body'] = message
         #print(apiMsg)
 
-        jsonData = json.dumps(apiMsg)
-        subprocess.call('keybase status', shell=True)
-        # Run command
-        osCommand = "{} -m '{}'".format(self.CHATCMD, jsonData)
+        #jsonData = json.dumps(apiMsg)
+
+        #subprocess.call('keybase status', shell=True)
+
+        kbCommand = 'keybase chat send "{}" --channel {} {}{}'.format(message, teamChannel, teamName, self.ENTERKEY)
+        osCommand = "screen -S {} -p 0 -X stuff '{}'".format(screenName, kbCommand)
+        print(osCommand)
 
         try:
             exitcode = subprocess.call(osCommand, shell=True)
