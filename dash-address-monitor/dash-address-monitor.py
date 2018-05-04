@@ -1,5 +1,6 @@
 from coin_rpc_class import RPCHost
 from keybase import Keybase
+from datetime import datetime
 
 from pprint import pprint
 import time, requests, shelve
@@ -34,7 +35,7 @@ def pollAddresses(host): #host):
         except Exception as e:
             print('Exception getting balance: {}. Exiting'.format(e))
             continue
-
+            
         # Compare with previous (if found)
         prevBalance = getBalance(db, a)
         if (balance != prevBalance):
@@ -45,8 +46,8 @@ def pollAddresses(host): #host):
 
             # Send notification
             kb = Keybase()
-            notifyMessage = 'Balance change:\n\t\`{}\`\n    Previous Balance: {}DASH\n    New Balance: {} DASH\n    Change of: {} DASH'.format(a, float(prevBalance)/COIN, float(balance)/COIN, balanceChange/COIN)
-            kb.sendTeamMessage('phez', 'dev-null', notifyMessage, 'kbscreen')
+            notifyMessage = 'Balance change ({}):\n\t\`{}\`\n    Previous Balance: {}DASH\n    New Balance: {} DASH\n    Change of: {} DASH'.format(datetime.now(), a, float(prevBalance)/COIN, float(balance)/COIN, balanceChange/COIN)
+            kb.sendTeamMessage('phez', 'notifications', notifyMessage, 'kbscreen')
         else:
             print('No balance change for `{}`'.format(a))
 
