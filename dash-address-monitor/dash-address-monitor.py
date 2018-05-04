@@ -16,11 +16,13 @@ addr = ['yY6AmGopsZS31wy1JLHR9P6AC6owFaXwuh',
 
 def pollAddresses(host): #host):
     balance = None
-    prevBalance = 100000000000.0
     db = 'balances.dat'
 
     for a in addr:
-        print('Address: {}'.format(a))
+        if (a == ''):
+            continue
+
+        print('Address: "{}"'.format(a))
 
         try:
             balance = host.call('getaddressbalance', a)['balance']
