@@ -35,7 +35,7 @@ def pollAddresses(host): #host):
         except Exception as e:
             print('Exception getting balance: {}. Exiting'.format(e))
             continue
-            
+
         # Compare with previous (if found)
         prevBalance = getBalance(db, a)
         if (balance != prevBalance):
@@ -145,7 +145,7 @@ def main():
 
     if (host.isResponding()):
         #print(host.call('getinfo'))
-        rpcTest(host)
+        #rpcTest(host)
 
         pollAddresses(host)
     else:
