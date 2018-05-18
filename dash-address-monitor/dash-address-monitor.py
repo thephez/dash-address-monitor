@@ -13,23 +13,35 @@ RPCPASS = 'pass'
 COIN = 100000000
 
 addr = ['yY6AmGopsZS31wy1JLHR9P6AC6owFaXwuh',
-        '']
+        ''
+        'XcbfassQgqwn3oREckfjMASWg7Bsuwd3st',
+        'msdlkafj'
+        ]
 
 def pollAddresses(host): #host):
-    balance = None
     db = 'balances.dat'
 
     for a in addr:
+        netType = None
+        balance = None
+        
         if (a == ''):
             continue
 
-        print('Address: "{}"'.format(a))
+        try:        
+            netType = getNetType(a)
+        except:
+            continue
+
+        print('Network: {}, Address: "{}"'.format(netType, a))
 
         try:
-            balance = host.call('getaddressbalance', a)['balance']
-            print(balance)
-            #balance = float(getBalanceInsight(a))
-            #balance = getBalanceBlockcypher(a)
+            if (netType == 'MAIN'):
+                #balance = float(getBalanceInsight(a))
+                balance = getBalanceBlockcypher(a)
+
+            elif (netType == 'TEST'):
+                balance = host.call('getaddressbalance', a)['balance']
 
             print('Balance: {} DASH'.format(float(balance)/COIN))
         except Exception as e:
@@ -95,7 +107,8 @@ def getBalanceBlockcypher(address):
 
     # Only works for mainnet addresses
     info = get_address_overview(address, 'dash')
-    print('Balance: {}'.format(info['final_balance']))
+    #print('Balance: {}'.format(info['final_balance']))
+    return info['final_balance']
 
 def storeBalance(db, address, balance):
     d = shelve.open(db)
@@ -136,6 +149,16 @@ def getRpcHost(rpcPort, rpcUser, rpcPassword):
     host = RPCHost(serverURL)
 
     return host
+
+def getNetType(address):
+    # Determine if the address belongs to Mainnet or Testnet
+
+    if (address[0] == 'X'):
+        return 'MAIN'
+    elif (address[0] == 'y'):
+        return 'TEST'
+    else:
+        raise ValueError('Address type unknown')
 
 def main():
 
