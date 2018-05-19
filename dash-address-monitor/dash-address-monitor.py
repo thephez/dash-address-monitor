@@ -3,9 +3,11 @@ from keybase.keybaseClient import Keybase
 from datetime import datetime
 
 from pprint import pprint
-import time, requests, shelve
+import shelve
 
-from blockcypher import get_address_overview
+import apis.coreRpcClient
+import apis.blockcypherClient
+import apis.insightClient
 
 RPCPORT = 19998
 RPCUSER = 'user'
@@ -37,11 +39,12 @@ def pollAddresses(host): #host):
 
         try:
             if (netType == 'MAIN'):
-                #balance = float(getBalanceInsight(a))
-                balance = getBalanceBlockcypher(a)
-
+                balance = float(apis.insightClient.getBalance(a))
+                #balance = apis.blockcypherClient.getBalance(a)
+                
             elif (netType == 'TEST'):
-                balance = host.call('getaddressbalance', a)['balance']
+                #balance = host.call('getaddressbalance', a)['balance']
+                balance = apis.coreRpcClient.getBalance(host, a)
 
             print('Balance: {} DASH'.format(float(balance)/COIN))
         except Exception as e:
@@ -62,53 +65,6 @@ def pollAddresses(host): #host):
             kb.sendTeamMessage('phez', 'notifications', notifyMessage, 'kbscreen')
         else:
             print('No balance change for `{}`'.format(a))
-
-def getBalanceInsight(address):
-    apiUrlBase = "https://testnet-insight.dashevo.org/insight-api-dash/addr/"
-    #apiUrlBase = "https://insight.dashevo.org/insight-api-dash/addr/"
-    apiUrlSuffix = "/balance"
-    url = '{}{}{}'.format(apiUrlBase, address, apiUrlSuffix)
-
-    tries = 5
-    hadConnectionFailures = False
-    while True:
-        try:
-            response = requests.get(url)
-        except requests.exceptions.ConnectionError:
-            tries -= 1
-            if tries == 0:
-                raise Exception('Failed to connect to Insight API at {} for balance check.'.format(apiUrlBase))
-            hadFailedConnections = True
-            print("Couldn't connect for balance check, will sleep for five seconds and then try again ({} more tries)".format(tries))
-            time.sleep(5)
-        else:
-            if (response.status_code == 400):
-                tries -= 1
-                print('Insight-Api request failure: {} {}. Retrying {} more times...'.format(response.status_code, response.reason, tries))
-                time.sleep(1)
-                continue
-
-            if hadConnectionFailures:
-                print('Connected after retry.')
-
-            break
-
-    if not response.status_code in (200, 500):
-        #response.raise_for_status()
-        raise Exception('Insight-API connection failure: ' + str(response.status_code) + ' ' + response.reason)
-
-    if (response.text.isdigit() != True):
-        raise Exception('Insight-API: Non-numeric balance returned')
-
-    print('Completed with {} tries remaining'.format(tries))
-    return response.text
-
-def getBalanceBlockcypher(address):
-
-    # Only works for mainnet addresses
-    info = get_address_overview(address, 'dash')
-    #print('Balance: {}'.format(info['final_balance']))
-    return info['final_balance']
 
 def storeBalance(db, address, balance):
     d = shelve.open(db)
@@ -176,7 +132,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-#    from blockcypher import get_address_overview
-#    print(get_address_overview('Xico5nigvR8Kk2PQZuthSb5dETUf5oAj8g', 'dash')['balance'])
