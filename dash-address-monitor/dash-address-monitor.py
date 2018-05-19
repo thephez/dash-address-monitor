@@ -1,5 +1,5 @@
 from coin_rpc_class import RPCHost
-from keybase import Keybase
+from keybase.keybaseClient import Keybase
 from datetime import datetime
 
 from pprint import pprint
