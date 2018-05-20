@@ -12,7 +12,7 @@ class RPCHost(object):
         self._session = requests.Session()
         self._url = 'http://{}:{}@localhost:{}'.format(rpcUser, rpcPassword, rpcPort)
         self._headers = {'content-type': 'application/json'}
-        
+
     def call(self, rpcMethod, *params):
         payload = json.dumps({"method": rpcMethod, "params": list(params), "jsonrpc": "2.0"})
         tries = 5

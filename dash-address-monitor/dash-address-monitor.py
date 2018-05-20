@@ -1,4 +1,4 @@
-from coin_rpc_class import RPCHost
+from rpc.rpcConnection import RPCHost
 from keybase.keybaseClient import Keybase
 from datetime import datetime
 
