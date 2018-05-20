@@ -43,3 +43,14 @@ class RPCHost(object):
         except Exception as e:
             print(e)
             return False
+
+    def rpcTest(self):
+
+        getinfo = self.call('getinfo')
+        print('Current block height: {}'.format(getinfo['blocks']))
+
+        #try:
+        #    balance = host.call('getaddressbalance', 'yY6AmGopsZS31wy1JLHR9P6AC6owFaXwuh')
+        #    pprint(balance)
+        #except Exception as e:
+        #    print(e)

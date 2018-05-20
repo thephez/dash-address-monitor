@@ -86,17 +86,6 @@ def getBalance(db, address):
 
     return balance
 
-def rpcTest(host):
-
-    getinfo = host.call('getinfo')
-    print('Current block height: {}'.format(getinfo['blocks']))
-
-    #try:
-    #    balance = host.call('getaddressbalance', 'yY6AmGopsZS31wy1JLHR9P6AC6owFaXwuh')
-    #    pprint(balance)
-    #except Exception as e:
-    #    print(e)
-
 def getRpcHost(rpcPort, rpcUser, rpcPassword):
     # Accessing the RPC local server
     serverURL = 'http://' + rpcUser + ':' + rpcPassword + '@localhost:' + str(rpcPort)
@@ -124,8 +113,8 @@ def main():
 
     if (host.isResponding()):
         #print(host.call('getinfo'))
-        #rpcTest(host)
-
+        #host.rpcTest()
+                
         pollAddresses(host)
     else:
         print('Host not responding')
