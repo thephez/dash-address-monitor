@@ -9,7 +9,6 @@ import apis.coreRpcClient
 import apis.blockcypherClient
 import apis.insightClient
 
-RPCPORT = 19998
 RPCUSER = 'user'
 RPCPASS = 'pass'
 COIN = 100000000
@@ -43,7 +42,6 @@ def pollAddresses(host): #host):
                 #balance = apis.blockcypherClient.getBalance(a)
 
             elif (netType == 'TEST'):
-                #balance = host.call('getaddressbalance', a)['balance']
                 balance = apis.coreRpcClient.getBalance(host, a)
 
             print('Balance: {} DASH'.format(float(balance)/COIN))
@@ -104,7 +102,6 @@ def main():
 
     if (host.isResponding()):
         #host.rpcTest()
-
         pollAddresses(host)
     else:
         print('Host not responding')
