@@ -26,11 +26,11 @@ def pollAddresses(host): #host):
     for a in addr:
         netType = None
         balance = None
-        
+
         if (a == ''):
             continue
 
-        try:        
+        try:
             netType = getNetType(a)
         except:
             continue
@@ -41,7 +41,7 @@ def pollAddresses(host): #host):
             if (netType == 'MAIN'):
                 balance = float(apis.insightClient.getBalance(a))
                 #balance = apis.blockcypherClient.getBalance(a)
-                
+
             elif (netType == 'TEST'):
                 #balance = host.call('getaddressbalance', a)['balance']
                 balance = apis.coreRpcClient.getBalance(host, a)
@@ -86,15 +86,6 @@ def getBalance(db, address):
 
     return balance
 
-def getRpcHost(rpcPort, rpcUser, rpcPassword):
-    # Accessing the RPC local server
-    serverURL = 'http://' + rpcUser + ':' + rpcPassword + '@localhost:' + str(rpcPort)
-
-    # Using the class defined in the dash_rpc_class.py
-    host = RPCHost(serverURL)
-
-    return host
-
 def getNetType(address):
     # Determine if the address belongs to Mainnet or Testnet
 
@@ -109,12 +100,11 @@ def main():
 
     #pollAddresses()
 
-    host = getRpcHost(RPCPORT, RPCUSER, RPCPASS)
+    host = RPCHost(RPCUSER, RPCPASS, RPCHost.TESTNET_RPC_PORT)
 
     if (host.isResponding()):
-        #print(host.call('getinfo'))
         #host.rpcTest()
-                
+
         pollAddresses(host)
     else:
         print('Host not responding')

@@ -4,9 +4,13 @@ import time, requests, json
 # From https://gist.github.com/Deadlyelder/6baad86e832acf0df23a70914c014d7a#file-bitcoin_rpc_class-py
 
 class RPCHost(object):
-    def __init__(self, url):
+
+    MAINNET_RPC_PORT = 9998
+    TESTNET_RPC_PORT = 19998
+
+    def __init__(self, rpcUser, rpcPassword, rpcPort=9998):
         self._session = requests.Session()
-        self._url = url
+        self._url = 'http://{}:{}@localhost:{}'.format(rpcUser, rpcPassword, rpcPort)
         self._headers = {'content-type': 'application/json'}
         
     def call(self, rpcMethod, *params):
