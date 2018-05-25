@@ -14,55 +14,42 @@ RPCPASS = 'pass'
 COIN = 100000000
 
 addr = ['yY6AmGopsZS31wy1JLHR9P6AC6owFaXwuh',
-        ''
+        '',
         'XcbfassQgqwn3oREckfjMASWg7Bsuwd3st',
         'msdlkafj'
         ]
 
-def pollAddresses(host): #host):
+def pollAddresses(rpcConn, addresses):
     db = 'balances.dat'
 
-    for a in addr:
+    for addr in addresses:
         netType = None
         balance = None
 
-        if (a == ''):
-            continue
+        netType = getNetType(addr)
+        print('Network: {}, Address: "{}"'.format(netType, addr))
 
         try:
-            netType = getNetType(a)
-        except:
-            continue
-
-        print('Network: {}, Address: "{}"'.format(netType, a))
-
-        try:
-            if (netType == 'MAIN'):
-                balance = float(apis.insightClient.getBalance(a))
-                #balance = apis.blockcypherClient.getBalance(a)
-
-            elif (netType == 'TEST'):
-                balance = apis.coreRpcClient.getBalance(host, a)
-
+            balance = apis.coreRpcClient.getBalance(rpcConn[netType], addr)
             print('Balance: {} DASH'.format(float(balance)/COIN))
         except Exception as e:
             print('Exception getting balance: {}. Exiting'.format(e))
             continue
 
         # Compare with previous (if found)
-        prevBalance = getBalance(db, a)
+        prevBalance = getBalance(db, addr)
         if (balance != prevBalance):
             balanceChange = balance - prevBalance
 
             # Store new Balance
-            storeBalance(db, a, balance)
+            storeBalance(db, addr, balance)
 
             # Send notification
             kb = Keybase()
-            notifyMessage = 'Balance change ({}):\n\t\`{}\`\n    Previous Balance: {}DASH\n    New Balance: {} DASH\n    Change of: {} DASH'.format(datetime.now(), a, float(prevBalance)/COIN, float(balance)/COIN, balanceChange/COIN)
+            notifyMessage = 'Balance change ({}):\n\t\`{}\`\n    Previous Balance: {}DASH\n    New Balance: {} DASH\n    Change of: {} DASH'.format(datetime.now(), addr, float(prevBalance)/COIN, float(balance)/COIN, balanceChange/COIN)
             kb.sendTeamMessage('phez', 'notifications', notifyMessage, 'kbscreen')
         else:
-            print('No balance change for `{}`'.format(a))
+            print('No balance change for `{}`'.format(addr))
 
 def storeBalance(db, address, balance):
     d = shelve.open(db)
@@ -94,17 +81,73 @@ def getNetType(address):
     else:
         raise ValueError('Address type unknown')
 
+def isValidAddress(address):
+
+    # Empty address
+    if (address == ''):
+        return False
+
+    # List of valid address start characters
+    startChars = ['X', 'y']
+    if (address[0] not in startChars):
+        return False
+
+    # Invalid Base-58 characters
+    invalidChars = ['0', 'I', '0', 'l']
+    if any(char in address for char in invalidChars):
+        return False
+
+    return True
+
+def getUsedNetworks(addresses):
+
+    networks = set()
+
+    # Get types of addresses used
+    for addr in addresses:
+        netType = getNetType(addr)
+        networks.add(netType)
+
+    return networks
+
+def sanitizeAddressList(addresses):
+    # Create set containing only unique, valid Addresses
+    validAddresses = set()
+
+    for addr in addresses:
+        if (isValidAddress(addr)):
+            validAddresses.add(addr)
+
+    print('{} valid addresses found'.format(len(validAddresses)))
+    return validAddresses
+
+
 def main():
 
-    #pollAddresses()
+    # Get valid addresses and deterine networks used (Main and/or Test)
+    addresses = sanitizeAddressList(addr)
+    networks = getUsedNetworks(addresses)
+    print('Addresses found on {} network(s)'.format(networks))
 
-    host = RPCHost(RPCUSER, RPCPASS, RPCHost.TESTNET_RPC_PORT)
+    # Establish connections to used network(s)
+    rpcConnections = {}
+    for network in networks:
+        if (network == 'MAIN'):
+            rpcConnections[network] = RPCHost(RPCUSER, RPCPASS, RPCHost.MAINNET_RPC_PORT)
+        elif (network == 'TEST'):
+            rpcConnections[network] = RPCHost(RPCUSER, RPCPASS, RPCHost.TESTNET_RPC_PORT)
 
-    if (host.isResponding()):
-        #host.rpcTest()
-        pollAddresses(host)
-    else:
-        print('Host not responding')
+    print(rpcConnections)
+
+    pollAddresses(rpcConnections, addresses)
+
+    #host = RPCHost(RPCUSER, RPCPASS, RPCHost.TESTNET_RPC_PORT)
+
+    #if (host.isResponding()):
+    #    #host.rpcTest()
+    #    pollAddresses(host)
+    #else:
+    #    print('Host not responding')
 
 if __name__ == '__main__':
     main()
