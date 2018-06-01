@@ -1,10 +1,11 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+/.vscode/
 
 bin/
 include/
-lib/
+/lib/
 share/
 
 balances.dat

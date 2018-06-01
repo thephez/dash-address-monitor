@@ -1,3 +1,9 @@
+import sys
+import os
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), './lib')))
+import config
+from dash_config import DashConfig
+
 from rpc.rpcConnection import RPCHost
 from keybase.keybaseClient import Keybase
 from datetime import datetime
@@ -9,13 +15,12 @@ import apis.coreRpcClient
 import apis.blockcypherClient
 import apis.insightClient
 
-RPCUSER = 'user'
-RPCPASS = 'pass'
 COIN = 100000000
-ADDRESS_FILE = 'addresses.txt'
+DBFILE = config.db_name
+KEYBASE_PARAMS = config.keybase_params
 
 def pollAddresses(rpcConn, addresses):
-    db = 'balances.dat'
+    db = DBFILE
 
     for addr in addresses:
         netType = None
@@ -42,7 +47,7 @@ def pollAddresses(rpcConn, addresses):
             # Send notification
             kb = Keybase()
             notifyMessage = 'Balance change ({}):\n\t\`{}\`\n    Previous Balance: {}DASH\n    New Balance: {} DASH\n    Change of: {} DASH'.format(datetime.now(), addr, float(prevBalance)/COIN, float(balance)/COIN, balanceChange/COIN)
-            kb.sendTeamMessage('phez', 'notifications', notifyMessage, 'kbscreen')
+            kb.sendTeamMessage(KEYBASE_PARAMS['team'], KEYBASE_PARAMS['channel'], notifyMessage, KEYBASE_PARAMS['screen'])
         else:
             print('No balance change for `{}`'.format(addr))
 
@@ -70,9 +75,9 @@ def getNetType(address):
     # Determine if the address belongs to Mainnet or Testnet
 
     if (address[0] == 'X'):
-        return 'MAIN'
+        return 'mainnet'
     elif (address[0] == 'y'):
-        return 'TEST'
+        return 'testnet'
     else:
         raise ValueError('Address type unknown')
 
@@ -124,19 +129,19 @@ def loadAddressFile(fname):
     return validAddresses
 
 def main():
+    # Get dash.conf location and load key values
+    config_text = DashConfig.slurp_config_file(config.dash_conf)
 
     # Get valid addresses and deterine networks used (Main and/or Test)
-    addresses = loadAddressFile(ADDRESS_FILE)
+    addresses = loadAddressFile(config.address_file)
     networks = getUsedNetworks(addresses)
     print('Addresses found on {} network(s)'.format(networks))
 
     # Establish connections to used network(s)
     rpcConnections = {}
     for network in networks:
-        if (network == 'MAIN'):
-            rpcConnections[network] = RPCHost(RPCUSER, RPCPASS, RPCHost.MAINNET_RPC_PORT)
-        elif (network == 'TEST'):
-            rpcConnections[network] = RPCHost(RPCUSER, RPCPASS, RPCHost.TESTNET_RPC_PORT)
+        netInfo = DashConfig.get_rpc_creds(config_text, network)
+        rpcConnections[network] = RPCHost(netInfo['user'], netInfo['password'], netInfo['port'])
 
     print(rpcConnections)
 
