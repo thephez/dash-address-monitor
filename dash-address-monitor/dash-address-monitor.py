@@ -142,13 +142,5 @@ def main():
 
     pollAddresses(rpcConnections, addresses)
 
-    #host = RPCHost(RPCUSER, RPCPASS, RPCHost.TESTNET_RPC_PORT)
-
-    #if (host.isResponding()):
-    #    #host.rpcTest()
-    #    pollAddresses(host)
-    #else:
-    #    print('Host not responding')
-
 if __name__ == '__main__':
     main()
