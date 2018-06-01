@@ -6,6 +6,10 @@ Monitor a list of Dash addresses for balance changes and send a Keybase chat not
 
 NOTE: This is designed to work with a Keybase team.
 
+Example notification
+
+![](doc/images/notification.png)
+
 ## Configuration
 
 ### dash-address-monitor.conf
@@ -16,8 +20,8 @@ keybase commands.
 
 ### Linux `screen`
 
-Set up a cron to call `screenbase.sh`. This script will handle setup of the
-`screen` and restart it if it fails.
+Set up a cron to call [`screenbase.sh`](dash-address-monitor/screenbase.sh).
+This script will handle setup of the `screen` and restart it if it fails.
 
 ### Example cron setup
 ```
