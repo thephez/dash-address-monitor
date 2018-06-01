@@ -1,8 +1,10 @@
-import requests, time
+import requests
+import time
+
 
 def getBalance(address):
-    #apiUrlBase = "https://testnet-insight.dashevo.org/insight-api-dash/addr/" # Testnet
-    apiUrlBase = "https://insight.dashevo.org/insight-api-dash/addr/" # Mainnet
+    # apiUrlBase = "https://testnet-insight.dashevo.org/insight-api-dash/addr/" # Testnet
+    apiUrlBase = "https://insight.dashevo.org/insight-api-dash/addr/"  # Mainnet
     apiUrlSuffix = "/balance"
     url = '{}{}{}'.format(apiUrlBase, address, apiUrlSuffix)
 
@@ -33,11 +35,11 @@ def getBalance(address):
             break
 
     if not response.status_code in (200, 500):
-        #response.raise_for_status()
+        # response.raise_for_status()
         raise Exception('Insight-API connection failure: ' +
                         str(response.status_code) + ' ' + response.reason)
 
-    if (response.text.isdigit() != True):
+    if (response.text.isdigit() is not True):
         raise Exception('Insight-API: Non-numeric balance returned')
 
     print('Completed with {} tries remaining'.format(tries))

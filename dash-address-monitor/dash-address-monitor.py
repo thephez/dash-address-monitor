@@ -1,8 +1,5 @@
 import sys
 import os
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), './lib')))
-import config
-from dash_config import DashConfig
 
 from rpc.rpcConnection import RPCHost
 from keybase.keybaseClient import Keybase
@@ -15,9 +12,14 @@ import apis.coreRpcClient
 import apis.blockcypherClient
 import apis.insightClient
 
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), './lib')))
+import config
+from dash_config import DashConfig
+
 COIN = 100000000
 DBFILE = config.db_name
 KEYBASE_PARAMS = config.keybase_params
+
 
 def pollAddresses(rpcConn, addresses):
     db = DBFILE
@@ -51,12 +53,14 @@ def pollAddresses(rpcConn, addresses):
         else:
             print('No balance change for `{}`'.format(addr))
 
+
 def storeBalance(db, address, balance):
     d = shelve.open(db)
     d[address] = balance
     d.close()
 
     return
+
 
 def getBalance(db, address):
 
@@ -71,6 +75,7 @@ def getBalance(db, address):
 
     return balance
 
+
 def getNetType(address):
     # Determine if the address belongs to Mainnet or Testnet
 
@@ -80,6 +85,7 @@ def getNetType(address):
         return 'testnet'
     else:
         raise ValueError('Address type unknown')
+
 
 def isValidAddress(address):
 
@@ -99,6 +105,7 @@ def isValidAddress(address):
 
     return True
 
+
 def getUsedNetworks(addresses):
 
     networks = set()
@@ -109,6 +116,7 @@ def getUsedNetworks(addresses):
         networks.add(netType)
 
     return networks
+
 
 def loadAddressFile(fname):
     # Create set containing only unique, valid Addresses
@@ -127,6 +135,7 @@ def loadAddressFile(fname):
 
     print('{} valid addresses found'.format(len(validAddresses)))
     return validAddresses
+
 
 def main():
     # Get dash.conf location and load key values
