@@ -12,12 +12,7 @@ import apis.insightClient
 RPCUSER = 'user'
 RPCPASS = 'pass'
 COIN = 100000000
-
-addr = ['yY6AmGopsZS31wy1JLHR9P6AC6owFaXwuh',
-        '',
-        'XcbfassQgqwn3oREckfjMASWg7Bsuwd3st',
-        'msdlkafj'
-        ]
+ADDRESS_FILE = 'addresses.txt'
 
 def pollAddresses(rpcConn, addresses):
     db = 'balances.dat'
@@ -110,22 +105,28 @@ def getUsedNetworks(addresses):
 
     return networks
 
-def sanitizeAddressList(addresses):
+def loadAddressFile(fname):
     # Create set containing only unique, valid Addresses
     validAddresses = set()
 
-    for addr in addresses:
-        if (isValidAddress(addr)):
-            validAddresses.add(addr)
+    with open(fname) as f:
+        data = f.readlines()
+
+        for line in data:
+            addr = line.strip()
+            if (isValidAddress(addr)):
+                validAddresses.add(addr)
+                print(validAddresses)
+            else:
+                print('Skipping invalid address: {}'.format(addr))
 
     print('{} valid addresses found'.format(len(validAddresses)))
     return validAddresses
 
-
 def main():
 
     # Get valid addresses and deterine networks used (Main and/or Test)
-    addresses = sanitizeAddressList(addr)
+    addresses = loadAddressFile(ADDRESS_FILE)
     networks = getUsedNetworks(addresses)
     print('Addresses found on {} network(s)'.format(networks))
 
