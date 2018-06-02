@@ -2,7 +2,7 @@ import requests
 import time
 
 
-def getBalance(address):
+def get_balance(address):
     # apiUrlBase = "https://testnet-insight.dashevo.org/insight-api-dash/addr/" # Testnet
     apiUrlBase = "https://insight.dashevo.org/insight-api-dash/addr/"  # Mainnet
     apiUrlSuffix = "/balance"
