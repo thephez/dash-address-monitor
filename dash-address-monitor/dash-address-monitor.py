@@ -79,9 +79,9 @@ def get_balance(db, address):
 def get_network_type(address):
     # Determine if the address belongs to Mainnet or Testnet
 
-    if (address[0] == 'X'):
+    if (address[0] == 'X') or (address[0] == '7'):
         return 'mainnet'
-    elif (address[0] == 'y'):
+    elif (address[0] == 'y') or (address[0] == '8') or (address[0] == '9'):
         return 'testnet'
     else:
         raise ValueError('Address type unknown')
@@ -94,7 +94,7 @@ def is_valid_address(address):
         return False
 
     # List of valid address start characters
-    start_chars = ['X', 'y']
+    start_chars = ['X', '7', 'y', '8', '9']
     if (address[0] not in start_chars):
         return False
 
