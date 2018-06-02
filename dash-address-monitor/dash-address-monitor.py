@@ -49,7 +49,7 @@ def poll_addresses(rpc_connections, addresses):
             # Send notification
             kb = Keybase()
             notify_msg = 'Balance change ({}):\n\t\`{}\`\n    Previous Balance: {}DASH\n    New Balance: {} DASH\n    Change of: {} DASH'.format(datetime.now(), addr, float(last_balance)/COIN, float(balance)/COIN, balance_change/COIN)
-            kb.sendTeamMessage(KEYBASE_PARAMS['team'], KEYBASE_PARAMS['channel'], notify_msg, KEYBASE_PARAMS['screen'])
+            kb.send_team_msg(KEYBASE_PARAMS['team'], KEYBASE_PARAMS['channel'], notify_msg, KEYBASE_PARAMS['screen'])
         else:
             print('No balance change for `{}`'.format(addr))
 

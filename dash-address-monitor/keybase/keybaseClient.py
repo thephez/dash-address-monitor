@@ -25,7 +25,7 @@ class Keybase(object):
         self.CHATCMD = 'keybase chat api'
         self.ENTERKEY = '^M'
 
-    def sendTeamMessage(self, teamName, teamChannel, message, screenName):
+    def send_team_msg(self, teamName, teamChannel, message, screenName):
         #msg = None
 
         #apiMsg = {}
