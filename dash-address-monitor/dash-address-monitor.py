@@ -21,35 +21,35 @@ DBFILE = config.db_name
 KEYBASE_PARAMS = config.keybase_params
 
 
-def poll_addresses(rpcConn, addresses):
+def poll_addresses(rpc_connections, addresses):
     db = DBFILE
 
     for addr in addresses:
-        netType = None
+        network_type = None
         balance = None
 
-        netType = get_network_type(addr)
-        print('Network: {}, Address: "{}"'.format(netType, addr))
+        network_type = get_network_type(addr)
+        print('Network: {}, Address: "{}"'.format(network_type, addr))
 
         try:
-            balance = apis.coreRpcClient.get_balance(rpcConn[netType], addr)
+            balance = apis.coreRpcClient.get_balance(rpc_connections[network_type], addr)
             print('Balance: {} DASH'.format(float(balance)/COIN))
         except Exception as e:
             print('Exception getting balance: {}. Exiting'.format(e))
             continue
 
         # Compare with previous (if found)
-        prevBalance = get_balance(db, addr)
-        if (balance != prevBalance):
-            balanceChange = balance - prevBalance
+        last_balance = get_balance(db, addr)
+        if (balance != last_balance):
+            balance_change = balance - last_balance
 
             # Store new Balance
             store_balance(db, addr, balance)
 
             # Send notification
             kb = Keybase()
-            notifyMessage = 'Balance change ({}):\n\t\`{}\`\n    Previous Balance: {}DASH\n    New Balance: {} DASH\n    Change of: {} DASH'.format(datetime.now(), addr, float(prevBalance)/COIN, float(balance)/COIN, balanceChange/COIN)
-            kb.sendTeamMessage(KEYBASE_PARAMS['team'], KEYBASE_PARAMS['channel'], notifyMessage, KEYBASE_PARAMS['screen'])
+            notify_msg = 'Balance change ({}):\n\t\`{}\`\n    Previous Balance: {}DASH\n    New Balance: {} DASH\n    Change of: {} DASH'.format(datetime.now(), addr, float(last_balance)/COIN, float(balance)/COIN, balance_change/COIN)
+            kb.sendTeamMessage(KEYBASE_PARAMS['team'], KEYBASE_PARAMS['channel'], notify_msg, KEYBASE_PARAMS['screen'])
         else:
             print('No balance change for `{}`'.format(addr))
 
@@ -94,13 +94,13 @@ def is_valid_address(address):
         return False
 
     # List of valid address start characters
-    startChars = ['X', 'y']
-    if (address[0] not in startChars):
+    start_chars = ['X', 'y']
+    if (address[0] not in start_chars):
         return False
 
     # Invalid Base-58 characters
-    invalidChars = ['0', 'I', '0', 'l']
-    if any(char in address for char in invalidChars):
+    invalid_chars = ['0', 'I', '0', 'l']
+    if any(char in address for char in invalid_chars):
         return False
 
     return True
@@ -112,15 +112,15 @@ def get_used_networks(addresses):
 
     # Get types of addresses used
     for addr in addresses:
-        netType = get_network_type(addr)
-        networks.add(netType)
+        network_type = get_network_type(addr)
+        networks.add(network_type)
 
     return networks
 
 
 def load_address_file(fname):
     # Create set containing only unique, valid Addresses
-    validAddresses = set()
+    valid_addresses = set()
 
     with open(fname) as f:
         data = f.readlines()
@@ -128,13 +128,13 @@ def load_address_file(fname):
         for line in data:
             addr = line.strip()
             if (is_valid_address(addr)):
-                validAddresses.add(addr)
-                print(validAddresses)
+                valid_addresses.add(addr)
+                print(valid_addresses)
             else:
                 print('Skipping invalid address: {}'.format(addr))
 
-    print('{} valid addresses found'.format(len(validAddresses)))
-    return validAddresses
+    print('{} valid addresses found'.format(len(valid_addresses)))
+    return valid_addresses
 
 
 def main():
@@ -147,14 +147,14 @@ def main():
     print('Addresses found on {} network(s)'.format(networks))
 
     # Establish connections to used network(s)
-    rpcConnections = {}
+    rpc_connections = {}
     for network in networks:
-        netInfo = DashConfig.get_rpc_creds(config_text, network)
-        rpcConnections[network] = RPCHost(netInfo['user'], netInfo['password'], netInfo['port'])
+        rpc_params = DashConfig.get_rpc_creds(config_text, network)
+        rpc_connections[network] = RPCHost(rpc_params['user'], rpc_params['password'], rpc_params['port'])
 
-    print(rpcConnections)
+    print(rpc_connections)
 
-    poll_addresses(rpcConnections, addresses)
+    poll_addresses(rpc_connections, addresses)
 
 if __name__ == '__main__':
     main()
