@@ -1,7 +1,7 @@
 from blockcypher import get_address_overview
 
-def getBalance(address):
 
+def get_balance(address):
     # Only works for mainnet addresses
     info = get_address_overview(address, 'dash')
     print('Balance: {}'.format(info['final_balance']))

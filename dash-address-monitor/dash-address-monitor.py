@@ -21,30 +21,30 @@ DBFILE = config.db_name
 KEYBASE_PARAMS = config.keybase_params
 
 
-def pollAddresses(rpcConn, addresses):
+def poll_addresses(rpcConn, addresses):
     db = DBFILE
 
     for addr in addresses:
         netType = None
         balance = None
 
-        netType = getNetType(addr)
+        netType = get_network_type(addr)
         print('Network: {}, Address: "{}"'.format(netType, addr))
 
         try:
-            balance = apis.coreRpcClient.getBalance(rpcConn[netType], addr)
+            balance = apis.coreRpcClient.get_balance(rpcConn[netType], addr)
             print('Balance: {} DASH'.format(float(balance)/COIN))
         except Exception as e:
             print('Exception getting balance: {}. Exiting'.format(e))
             continue
 
         # Compare with previous (if found)
-        prevBalance = getBalance(db, addr)
+        prevBalance = get_balance(db, addr)
         if (balance != prevBalance):
             balanceChange = balance - prevBalance
 
             # Store new Balance
-            storeBalance(db, addr, balance)
+            store_balance(db, addr, balance)
 
             # Send notification
             kb = Keybase()
@@ -54,7 +54,7 @@ def pollAddresses(rpcConn, addresses):
             print('No balance change for `{}`'.format(addr))
 
 
-def storeBalance(db, address, balance):
+def store_balance(db, address, balance):
     d = shelve.open(db)
     d[address] = balance
     d.close()
@@ -62,7 +62,7 @@ def storeBalance(db, address, balance):
     return
 
 
-def getBalance(db, address):
+def get_balance(db, address):
 
     d = shelve.open(db)
     if address in d:
@@ -76,7 +76,7 @@ def getBalance(db, address):
     return balance
 
 
-def getNetType(address):
+def get_network_type(address):
     # Determine if the address belongs to Mainnet or Testnet
 
     if (address[0] == 'X'):
@@ -87,7 +87,7 @@ def getNetType(address):
         raise ValueError('Address type unknown')
 
 
-def isValidAddress(address):
+def is_valid_address(address):
 
     # Empty address
     if (address == ''):
@@ -106,19 +106,19 @@ def isValidAddress(address):
     return True
 
 
-def getUsedNetworks(addresses):
+def get_used_networks(addresses):
 
     networks = set()
 
     # Get types of addresses used
     for addr in addresses:
-        netType = getNetType(addr)
+        netType = get_network_type(addr)
         networks.add(netType)
 
     return networks
 
 
-def loadAddressFile(fname):
+def load_address_file(fname):
     # Create set containing only unique, valid Addresses
     validAddresses = set()
 
@@ -127,7 +127,7 @@ def loadAddressFile(fname):
 
         for line in data:
             addr = line.strip()
-            if (isValidAddress(addr)):
+            if (is_valid_address(addr)):
                 validAddresses.add(addr)
                 print(validAddresses)
             else:
@@ -141,9 +141,9 @@ def main():
     # Get dash.conf location and load key values
     config_text = DashConfig.slurp_config_file(config.dash_conf)
 
-    # Get valid addresses and deterine networks used (Main and/or Test)
-    addresses = loadAddressFile(config.address_file)
-    networks = getUsedNetworks(addresses)
+    # Get valid addresses and determine networks used (Main and/or Test)
+    addresses = load_address_file(config.address_file)
+    networks = get_used_networks(addresses)
     print('Addresses found on {} network(s)'.format(networks))
 
     # Establish connections to used network(s)
@@ -154,7 +154,7 @@ def main():
 
     print(rpcConnections)
 
-    pollAddresses(rpcConnections, addresses)
+    poll_addresses(rpcConnections, addresses)
 
 if __name__ == '__main__':
     main()
