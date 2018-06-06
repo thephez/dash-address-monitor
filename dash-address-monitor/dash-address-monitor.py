@@ -7,6 +7,7 @@ from datetime import datetime
 
 from pprint import pprint
 import shelve
+from base58 import b58decode_check
 
 import apis.coreRpcClient
 import apis.blockcypherClient
@@ -89,21 +90,12 @@ def get_network_type(address):
 
 def is_valid_address(address):
 
-    # Empty address
-    if (address == ''):
+    try:
+        b58decode_check(address)
+        return True
+    except ValueError:
         return False
-
-    # List of valid address start characters
-    start_chars = ['X', '7', 'y', '8', '9']
-    if (address[0] not in start_chars):
-        return False
-
-    # Invalid Base-58 characters
-    invalid_chars = ['0', 'I', '0', 'l']
-    if any(char in address for char in invalid_chars):
-        return False
-
-    return True
+    return None
 
 
 def get_used_networks(addresses):
