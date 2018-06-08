@@ -43,4 +43,4 @@ def get_balance(address):
         raise Exception('Insight-API: Non-numeric balance returned')
 
     print('Completed with {} tries remaining'.format(tries))
-    return response.text
+    return float(response.text)
