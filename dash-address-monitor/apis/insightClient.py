@@ -2,9 +2,14 @@ import requests
 import time
 
 
-def get_balance(address):
-    # apiUrlBase = "https://testnet-insight.dashevo.org/insight-api-dash/addr/" # Testnet
-    apiUrlBase = "https://insight.dashevo.org/insight-api-dash/addr/"  # Mainnet
+def get_balance(network_type, address):
+    if network_type == 'mainnet':
+        apiUrlBase = "https://insight.dashevo.org/insight-api-dash/addr/"  # Mainnet
+    elif network_type == 'testnet':
+        apiUrlBase = "https://testnet-insight.dashevo.org/insight-api-dash/addr/" # Testnet
+    else:
+        return None
+
     apiUrlSuffix = "/balance"
     url = '{}{}{}'.format(apiUrlBase, address, apiUrlSuffix)
 
