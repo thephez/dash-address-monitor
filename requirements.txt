@@ -1,0 +1,11 @@
+base58==1.0.0
+bitcoin==1.1.39
+blockcypher==1.0.73
+certifi==2018.4.16
+chardet==3.0.4
+idna==2.6
+pkg-resources==0.0.0
+python-dateutil==2.2
+requests==2.4.3
+six==1.11.0
+urllib3==1.22
