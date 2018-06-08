@@ -30,11 +30,13 @@ def poll_addresses(rpc_connections, addresses):
         balance = None
 
         network_type = get_network_type(addr)
+        dash_unit = get_unit(network_type)
         print('Network: {}, Address: "{}"'.format(network_type, addr))
 
         try:
             balance = apis.coreRpcClient.get_balance(rpc_connections[network_type], addr)
             print('Balance: {} DASH'.format(float(balance)/COIN))
+            print('Balance: {} {}'.format(float(balance)/COIN, dash_unit))
         except Exception as e:
             print('Exception getting balance: {}. Exiting'.format(e))
             continue
@@ -49,7 +51,7 @@ def poll_addresses(rpc_connections, addresses):
 
             # Send notification
             kb = Keybase()
-            notify_msg = 'Balance change ({}):\n\t\`{}\`\n    Previous Balance: {}DASH\n    New Balance: {} DASH\n    Change of: {} DASH'.format(datetime.now(), addr, float(last_balance)/COIN, float(balance)/COIN, balance_change/COIN)
+            notify_msg = 'Balance change ({1}):\n\t\`{2}\`\n    Previous Balance: {3} {0}\n    New Balance: {4} {0}\n    Change of: {5} {0}'.format(dash_unit, datetime.now(), addr, float(last_balance)/COIN, float(balance)/COIN, balance_change/COIN)
             kb.send_team_msg(KEYBASE_PARAMS['team'], KEYBASE_PARAMS['channel'], notify_msg, KEYBASE_PARAMS['screen'])
         else:
             print('No balance change for `{}`'.format(addr))
@@ -87,6 +89,12 @@ def get_network_type(address):
     else:
         raise ValueError('Address type unknown')
 
+
+def get_unit(network_type):
+    if network_type == 'mainnet':
+        return 'DASH'
+    elif network_type == 'testnet':
+        return 'tDASH'
 
 def is_valid_address(address):
 
